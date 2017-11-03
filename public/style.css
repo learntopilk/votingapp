@@ -1,0 +1,12 @@
+/*style.css*/
+p {
+}
+
+input {
+  vertical-align: middle; 
+  margin: 0px;
+}
+form * {
+  vertical-align: middle;
+  margin: 0px;
+}
