@@ -1,14 +1,14 @@
 $(function(){
     
     
-    var renderSignupForm = function(){
+    var renderLoginForm = function(){
       var formContainer = document.getElementById("qu");
       
-      formContainer.innerHTML = '<form id="signup"><input type="text" id="user" placeholder="username" name="signupForm" required></input><input type="password" id="pwd" placeholder="password" name="signupForm" required></input><input type="submit">Signup</input></form>';
-       $("form").submit(signup);
+      formContainer.innerHTML = '<form id="login"><input type="text" id="user" placeholder="username" name="loginForm" required></input><input type="password" id="pwd" placeholder="password" name="loginForm" required></input><input type="submit">Login</input></form>';
+       $("form").submit(login);
     }
    
-    var signup = function(event){
+    var login = function(event){
       event.preventDefault();
       
       var credentials = $('form').serializeArray();
@@ -29,11 +29,11 @@ $(function(){
             }
       }
       
-      req.open("PUT", "/signup", true);
+      req.open("POST", "/login", true);
       req.setRequestHeader("Content-type", "application/json");
       req.send(JSON.stringify(sendable));
     };
       
-      renderSignupForm();
+      renderLoginForm();
     
   });

@@ -102,6 +102,7 @@ exports.createUser = function(/*string*/username, /*string*/ password, /*functio
   console.log("New user created");
   console.log(Us);
   
+  
   Us.save(function(err, Us){
     if (err) {return console.error(err);}
     return callback(Us);
