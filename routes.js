@@ -1,8 +1,18 @@
 var db = require('./DatabaseInteractions.js');
+
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
 var cookies = require("cookies");
 var cookieParser = require("cookie-parser");
+var session = require('client-sessions');
+
+function requireLogin(req, res, next) {
+  if (!req.user) {
+    res.redirect("/login");
+  } else {
+    next();
+  }
+}
 module.exports = function(app) {
   
 /*
@@ -18,6 +28,8 @@ app.get("/", function(request, response, next){
 
   next();
 });  */
+
+
   //Basic file serving / initialization. 
   //TODO: send something else or add a thing when signed in.
   app.get("/vote", function (request, response)
@@ -70,47 +82,69 @@ app.get("/", function(request, response, next){
     console.log("signup request");
     console.log(request.body);
     console.log(request.cookies);
-    db.createUser(request.body.username, request.body.password, function(responseCode, data){
+    db.createUser(request.body.username, request.body.password, function(data, data){
       //0 = found and not created, 1 = not found, success!, 2 = not created for some other reason
-      if (responseCode == 0) {
-        response.send({created: "false", reason: responseCode});
-      } else if (responseCode == 1) {
+      if (data == null) {
+        response.send({created: "false", reason: "Username already in use!"});
+      } else {
         //cookies.
+        console.log("signin cookie setup stage initiated.");
         response.cookie("TestCookie1", 'TestValue1', {maxAge: 9000, httpOnly: true});
         response.send({created: "true"});
         //TODO: Implementoi automaattinen login, lähetä jokin salainen avain?
       }
       
-      
     });
-    response.cookie("TestCookie2", "TestValue2", {maxAge: 9000, httpOnly: true}).send("data received");
+    //response.cookie("TestCookie2", "TestValue2", {maxAge: 9000, httpOnly: true}).send("data received");
     
   });
+
+  app.get("/test", function(request, response){
+    db.createUser("testi2", "salainen", function(data){
+      if (!data) {
+        response.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
+        response.send("User already exists!");
+      } else {
+        response.cookie("TestCookie1", data[0], {maxAge: 9000, httpOnly: true}).send(data);
+      }
+    });
+
+
+  });
+
   
   //Endpoint for logout
   app.post("/logout", function(request, response){
     response.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
+    request.session.reset();
     response.redirect("/vote");
     //Implement other measures to keep user away from
   });
   
   //Serving the login form
   app.get("/login", function(request, response){
-    
+    response.sendFile(__dirname + "/public/login.html");
+  });
+  app.get("/login.js", function(request, response){
+    response.sendFile(__dirname + "/public/login.js");
   });
   
   //for creating a new user
   app.post("/login", function(request, response){
+    console.log("Login attempt:" + request.body);
+    console.log(Object.keys(request.body));
+
+
+
     /*if (db.userFound(request.credentials)) {
       res.cookie('cookieName', 'cookieValue', {maxAge: 90, httpOnly: true});
     }*/
   });
   
   //Profile: view the questions this profile has created, as well as the results of the vote
-  app.get("/profile", function(request, response){
-    //if(!userIsSignedIn) {response.redirect("/login");}
+  app.get("/profile", requireLogin, function(request, response){
+    //
   }); 
-
   
   //These are halfway ready, stay away from them for now
   app.get("/client.js", function(request, response){
@@ -124,7 +158,7 @@ app.get("/", function(request, response, next){
   });
   app.get("/*" , function(request, response){
 
-    console.log("Logging potential cookies:");
+    //console.log("Logging potential cookies:");
     console.log(request.cookies);
     response.sendFile(__dirname + "/views/index.html");
     console.log("Default response served.");

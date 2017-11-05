@@ -38,7 +38,6 @@ $(function () {
     //Adding all the elements to the accumulating variable; 
     //In other words, gathering the data in a displayable form
     for (var i = 0; i < voteObject.votes.length; i++) {
-      //console.log(i);
       var cur = htmlStart + voteObject.options[i] + '</p><p class=""voteCount>' + voteObject.votes[i] + htmlEnd;
       accumulator += cur;
 
@@ -48,7 +47,7 @@ $(function () {
   }
 
   function showLoginLink(){
-    //$(header.append('<a href="/login">Login</a>'));
+    $('header').prepend('<a href="/login"><p>Login</p></a>');
   }
 
 
@@ -61,6 +60,7 @@ $(function () {
 
   //Init page;
   //Here we call everything needed for initializing the page
+  showLoginLink();
   var req = new XMLHttpRequest();
   req.onreadystatechange = function () {
     if (req.readyState == 4 && req.status == 200) {

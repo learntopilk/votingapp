@@ -34,6 +34,7 @@ $(function(){
       req.send(JSON.stringify(sendable));
     };
       
-      renderLoginForm();
+    $("header").prepend('<a href="/"><p>Main page</p></a><a href="/signup" id="signup"><p>Signup</p></a>');
+    renderLoginForm();
     
   });

@@ -33,7 +33,7 @@ $(function(){
       req.setRequestHeader("Content-type", "application/json");
       req.send(JSON.stringify(sendable));
     };
-      
+    $("header").prepend('<a href="/"><p>Main page</p></a><a href="/login" id="login"><p>Login</p></a>');
       renderSignupForm();
     
   });
