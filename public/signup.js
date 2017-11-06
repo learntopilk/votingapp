@@ -22,8 +22,9 @@ $(function(){
             {
               document.getElementById("qu").innerHTML = '<h2>Success!</h2>'
               var data = req.responseText;
-              console.log (data);
-              //document.cookie = "signedIn=true;secure=true;max-age=120;name ="+ req.responseText.username +";";
+              
+              var info = req.response.responseInfo;
+              console.log(data + ", " + info);
               //console.log(document.cookie);
               //$("form").submit(sendVote);
             }

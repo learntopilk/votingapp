@@ -41,9 +41,7 @@ app.use(function(req, res, next) {
     }
 });
 
-//var routes = require("./routes.js");
 require("./routes.js") (app);
 console.log("Server started.");
 
 app.listen(3000);
-

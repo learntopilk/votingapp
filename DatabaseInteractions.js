@@ -8,10 +8,17 @@ var Schema = mongoose.Schema;
 //PUT THESE IN A .ENV FILE
 var user = process.env.MONGODB_USER;
 var pwd = process.env.MONGODB_PASSWORD;
-console.log(user + " " + pwd);
+//console.log(user + " " + pwd);
 
 
 var url = "mongodb://"+user+":"+pwd+"@ds157964.mlab.com:57964/jonbase";
+//Defining user schema
+var userSchema = new Schema({
+  username: String,
+  password: String,
+  dateOfCreation: {type: Date, default: Date.now}
+  
+});
 
 //mongoose.useMongoClient();
 mongoose.connect(url);
@@ -20,18 +27,12 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function(){
   console.log("Connected to database!");
-});
 
-//Defining user schema
-var userSchema = new Schema({
-  username: String,
-  password: String,
-  dateOfCreation: {type: Date, default: Date.now}
   
 });
-var user = mongoose.model("user", userSchema);
-
-var users = [
+var User = mongoose.model("user", userSchema, "users");
+/*
+var users1 = [
   {
     username: "data",
     password: "secret",
@@ -41,7 +42,7 @@ var users = [
     password: "other",
     dateOfCreation: new Date(6999)
   }
-];
+];*/
 
 //Defining vote schema
 var voteSchema = new Schema({
@@ -61,20 +62,8 @@ var sampleVote = {
   "options":["this", "that"],
   "creator": "data",
   "open": true,
-  "votes" :[20, 13]};
-//Example of future form of the question:
-
-/*
-var question = {
-  q: "<question>",
-  choices: ["this", "that", "third"],
-  voted: [1, 6, 0],
-  creator: "<username>",
-  voters: 
-  } 
-
-*/
-
+  "votes" :[20, 13]
+};
 
   
 exports.getSingle = function (/*string*/ name, /*function*/ callback) { 
@@ -82,7 +71,6 @@ exports.getSingle = function (/*string*/ name, /*function*/ callback) {
     
   return callback(result);
 };
-  
   
 exports.getList = function (/*string*/ parameter, /*function*/ callback){
     // Getting a list of latest votes
@@ -120,49 +108,46 @@ exports.deleteVote = function (/*String*/ name, /*function*/ callback){
 //USER ACCOUNT HANDLES
 
 exports.createUser = function(/*string*/username, /*string*/ password, /*function*/ callback) {
-  
+  console.log(username + ", " + password);
   // TODO: Check that username and password fulfill the following criteria:
   // -More than 6 characters
 
-  var found = false;
   // Look for existing user with same name; if one exists, refuse request
-  user.findOne({"username": username}, function (err, dat){
+  User.findOne({"username": username}, function (err, data){
+    console.log(data);
     if (err) {
       console.log("error:" + err);
    
     } else {
-      found = true;
-      console.log(dat);
-      return callback(null);
-    }     
-  });
+      console.log("theUser: " + data);
+      if (!data) {
+        console.log("No such user found – we should be able to create an account!");
 
-  if (found == false) {
-    return callback(null);
-  } else {
-    var Us = new user({
-      username: username,
-      password: password,
-      dateOfCreation: Date.now
-      
-    });
-    console.log("New user created");
-    console.log(Us);
-  
-    
-    Us.save(function(err, Us){
-      if (err) {
-        return console.error(err);
+        var Us = new User({
+          username: username,
+          password: password,
+          dateOfCreation: Date.now()
+        });
+        console.log("New user created");      
+        //Here we save the user to the database
+        Us.save(function(err, Us){
+          if (err) {
+            return console.error(err);
+          } else {
+            console.log("New user saved.")
+            return callback(Us);
+          }
+       });
       } else {
-        console.log("New user saved.")
-        return callback(Us);
-      }
-    }
-  )};
+        console.log("user exists!");  
+        return callback(null);
+      }     
+    }  
+  });
 };
 
 exports.getUserInfo = function(/*string*/ username, callback){
-  user.findOne({"username":username}, function(err, data){
+  User.findOne({"username":username}, function(err, data){
     if (err) {
       return callback(null);
     } else {
@@ -175,6 +160,3 @@ exports.deleteUser = function(/*username*/ username, callback){
   //Delete user, remember to check for signin and other validation first
 
 };
-  
-  
-  

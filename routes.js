@@ -1,10 +1,12 @@
 var db = require('./DatabaseInteractions.js');
-
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
 var cookies = require("cookies");
 var cookieParser = require("cookie-parser");
 var session = require('client-sessions');
+
+
+
 
 function requireLogin(req, res, next) {
   if (!req.user) {
@@ -32,16 +34,14 @@ app.get("/", function(request, response, next){
 
   //Basic file serving / initialization. 
   //TODO: send something else or add a thing when signed in.
-  app.get("/vote", function (request, response)
-  {
+  app.get("/vote", function (request, response){
     response.sendFile(__dirname + "/views/index.html");
     console.log("index.html served");
   });
 
   //Endpoint for getting information from the database.
   //TODO: add literally all database functions.
-  app.get("/info", function (request, response) 
-  {
+  app.get("/info", function (request, response) {
     console.log("Info requested.");
     db.getSingle("latest", function(r){
         response.send(JSON.stringify(r));
@@ -64,7 +64,7 @@ app.get("/", function(request, response, next){
   });
 
   //FOR CREATING VOTES
-  app.put("/vote", function (request, response) {
+  app.put("/vote", requireLogin, function (request, response) {
     //TODO: Check for sign-in
     //if (request.user is signed in)
     console.log("Creating question");
@@ -82,15 +82,19 @@ app.get("/", function(request, response, next){
     console.log("signup request");
     console.log(request.body);
     console.log(request.cookies);
-    db.createUser(request.body.username, request.body.password, function(data, data){
-      //0 = found and not created, 1 = not found, success!, 2 = not created for some other reason
+    db.createUser(request.body.username, request.body.password, function(data){
+      // if data == null, there was no user. if anything else is returned, it's the user info.
       if (data == null) {
-        response.send({created: "false", reason: "Username already in use!"});
+        response.responseInfo = {created: "false", reason: "Username already in use!"};
+        //response.send({created: "false", reason: "Username already in use!"});
+        response.send();
       } else {
         //cookies.
         console.log("signin cookie setup stage initiated.");
-        response.cookie("TestCookie1", 'TestValue1', {maxAge: 9000, httpOnly: true});
-        response.send({created: "true"});
+        response.responseInfo = {created: "true"};
+        response.cookie("TestCookie1", 'TestValue1', {maxAge: 90000, httpOnly: true});
+        //response.redirect("/profile");
+        
         //TODO: Implementoi automaattinen login, lähetä jokin salainen avain?
       }
       
@@ -105,7 +109,7 @@ app.get("/", function(request, response, next){
         response.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
         response.send("User already exists!");
       } else {
-        response.cookie("TestCookie1", data[0], {maxAge: 9000, httpOnly: true}).send(data);
+        response.cookie("TestCookie1", data[0], {maxAge: 90000, httpOnly: true}).send(data);
       }
     });
 
@@ -162,5 +166,16 @@ app.get("/", function(request, response, next){
     console.log(request.cookies);
     response.sendFile(__dirname + "/views/index.html");
     console.log("Default response served.");
+
+    //testi
+    db.getUserInfo("testi", function(data){
+      if (!data) {
+        console.log("No test data found.");
+      } else {
+        console.log("Test data:" + data);
+      }
+
+
+    });
   });
 }
