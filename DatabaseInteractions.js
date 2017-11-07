@@ -54,7 +54,7 @@ var voteSchema = new Schema({
   votes: Array
   
 });
-var vote = mongoose.model("vote", voteSchema);
+var Vote = mongoose.model("vote", voteSchema);
 
 //Add an IP list to this so as to allow IP checking
 var sampleVote = {
@@ -66,10 +66,24 @@ var sampleVote = {
 };
 
   
-exports.getSingle = function (/*string*/ name, /*function*/ callback) { 
-  var result = sampleVote;
+exports.validateUser = function (/*string*/ name, /*string*/ password, /*function*/ callback) { 
+  User.findOne({"username": name}, function(err, user){
+    if (err) throw err;
+    // If no user found, cannot login --> callback(null).
+    if (!user){
+      return callback(null);
+    } else {
+      //If user found, return its information
+      if (user.password == password) {
+        return callback("auth");
+      } else {
+        console.log("invalid password");
+        return callback("invalid");
+      }
+    }
+  });
     
-  return callback(result);
+  //return callback(result);
 };
   
 exports.getList = function (/*string*/ parameter, /*function*/ callback){
