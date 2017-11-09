@@ -9,7 +9,8 @@ var session = require('client-sessions');
 
 
 function requireLogin(req, res, next) {
-  if (!req.user) {
+  if (!req.session.user) {
+    console.log("No user session detected");
     res.redirect("/login");
   } else {
     next();
@@ -43,7 +44,7 @@ app.get("/", function(request, response, next){
   //TODO: add literally all database functions.
   app.get("/info", function (request, response) {
     console.log("Info requested.");
-    db.getSingle("latest", function(r){
+    db.validateUser("latest", function(r){
         response.send(JSON.stringify(r));
       });
   });
@@ -105,15 +106,15 @@ app.get("/", function(request, response, next){
 
   app.get("/test", function(request, response){
     db.createUser("testi2", "salainen", function(data){
+      // If createuser gives null, there exists a user by the name and registration cannot be done.
       if (!data) {
         response.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
         response.send("User already exists!");
       } else {
+        // TODO: create automatic sign-in at signup
         response.cookie("TestCookie1", data[0], {maxAge: 90000, httpOnly: true}).send(data);
       }
     });
-
-
   });
 
   
@@ -137,7 +138,24 @@ app.get("/", function(request, response, next){
   app.post("/login", function(request, response){
     console.log("Login attempt:" + request.body);
     console.log(Object.keys(request.body));
-
+    db.validateUser(request.body.username, request.body.password, function(user){
+      switch (user) {
+        case null:
+          console.log("invalid username");
+          response.send("<h2>Invalid username!</h2>");
+          break;
+        case "invalid":
+          response.send("<h2>Invalid password!</h2>");
+          break;
+        case "auth":
+          request.session.user = user;
+          response.redirect('/profile');
+          break;
+      };
+     
+    });
+      
+      ;
 
 
     /*if (db.userFound(request.credentials)) {
@@ -148,6 +166,7 @@ app.get("/", function(request, response, next){
   //Profile: view the questions this profile has created, as well as the results of the vote
   app.get("/profile", requireLogin, function(request, response){
     //
+    response.send("you are currently observing the profile page.");
   }); 
   
   //These are halfway ready, stay away from them for now

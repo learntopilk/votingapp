@@ -3,26 +3,44 @@
 //var http = require('http');
 var https = require('https');
 var express = require('express');
-//var db = require('./DatabaseInteractions.js');
 var bodyParser = require('body-parser');
 var dotenv = require('dotenv').config();
 var cookie = require('cookie');
 var cookieParser = require('cookie-parser');
-//var routes = require('./routes.js');
+var session = require('express-session');
 var session = require('client-sessions');
-var user = require('./DatabaseInteractions.js').User;
+//var mongoStore = require('connect-mongo') (session);
+//var RedisStore = require('connect-redis')(session);
+var db = require('./DatabaseInteractions.js');
+var user = db.User;
+var vote = db.Vote;
 
 var app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+
+// Setting up session management and session secret
+var secret = process.env.APP_SECRET;
+
 app.use(session({
     cookieName: 'session',
-    secret: 'this_is a very secure sea-crit string of many varieties',
-    duration: 4 * 60 * 1000,
-    activeDuration: 2 * 60 * 1000
+    secret: secret,
+    duration: 30*60*100,
+    activeDuration: 5*60*100
 }));
 
+/*
+app.use(session({
+    cookieName: 'session',
+    secret: secret,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {httpOnly: true, secure: true, maxAge: 600000},
+    store: new RedisStore()
+}));*/
+
+/*
 //middleware for session data
 app.use(function(req, res, next) {
     if (req.session && req.session.user) {
@@ -39,7 +57,7 @@ app.use(function(req, res, next) {
     } else {
         next();
     }
-});
+});*/
 
 require("./routes.js") (app);
 console.log("Server started.");
