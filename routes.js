@@ -44,9 +44,9 @@ app.get("/", function(request, response, next){
   //TODO: add literally all database functions.
   app.get("/info", function (request, response) {
     console.log("Info requested.");
-    db.validateUser("latest", function(r){
+    /*db.validateUser("latest", function(r){
         response.send(JSON.stringify(r));
-      });
+      });*/
   });
 
   //FOR VOTING
@@ -148,6 +148,7 @@ app.get("/", function(request, response, next){
           response.send("<h2>Invalid password!</h2>");
           break;
         case "auth":
+          console.log("Authenticated");
           request.session.user = user;
           response.redirect('/profile');
           break;
