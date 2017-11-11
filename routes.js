@@ -18,21 +18,6 @@ function requireLogin(req, res, next) {
 }
 module.exports = function(app) {
   
-/*
-//This is a test cookie setter
-app.get("/", function(request, response, next){
-  if (!request.cookies) {
-    console.log("setting cookies");
-    response.cookie("cookie_name", "value", {httpOnly: false});
-  } else {
-    console.log("Some cookies found...");
-    response.cookie("cookie_name", "value", {httpOnly: true});
-  }
-
-  next();
-});  */
-
-
   //Basic file serving / initialization. 
   //TODO: send something else or add a thing when signed in.
   app.get("/vote", function (request, response){
@@ -69,6 +54,13 @@ app.get("/", function(request, response, next){
     //TODO: Check for sign-in
     //if (request.user is signed in)
     console.log("Creating question");
+    var bod = request.body;
+    db.createVote(bod.question, bod.options, bod.username, (ret) => {
+      if (typeof(ret != {})) {
+        
+      }
+
+    });
   });
 
  
@@ -153,12 +145,7 @@ app.get("/", function(request, response, next){
           response.redirect('/profile');
           break;
       };
-     
     });
-      
-      ;
-
-
     /*if (db.userFound(request.credentials)) {
       res.cookie('cookieName', 'cookieValue', {maxAge: 90, httpOnly: true});
     }*/
@@ -183,19 +170,17 @@ app.get("/", function(request, response, next){
   app.get("/*" , function(request, response){
 
     //console.log("Logging potential cookies:");
-    console.log(request.cookies);
+    //console.log(request.user + ", " + request.cookies);
     response.sendFile(__dirname + "/views/index.html");
     console.log("Default response served.");
 
     //testi
-    db.getUserInfo("testi", function(data){
+    /*db.getUserInfo("testi", function(data){
       if (!data) {
         console.log("No test data found.");
       } else {
         console.log("Test data:" + data);
       }
-
-
-    });
+    });*/
   });
 }

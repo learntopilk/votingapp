@@ -46,26 +46,25 @@ var users1 = [
 
 //Defining vote schema
 var voteSchema = new Schema({
-  question: String,
-  options: Array,
-  creator: String,
+  question: {type: String, required: true},
+  options: {type: Array, required: true},
+  creator: {type: String, required: true},
   date: {type: Date, default: Date.now},
   open: {type: Boolean, default: true},
-  votes: Array
-  
+  closes: {}
 });
+
 var Vote = mongoose.model("vote", voteSchema);
 
 //Add an IP list to this so as to allow IP checking
 var sampleVote = {
   "question":"Question!!",
-  "options":["this", "that"],
+  "options":[{q: "this", v: 14}, {q: "that", v: 20}],
   "creator": "data",
+  "created": new Date(Date.now()),
   "open": true,
-  "votes" :[20, 13]
-};
+};  
 
-  
 exports.validateUser = function (/*string*/ name, /*string*/ password, /*function*/ callback) { 
   User.findOne({"username": name}, function(err, user){
     if (err) throw err;
@@ -86,10 +85,32 @@ exports.validateUser = function (/*string*/ name, /*string*/ password, /*functio
   //return callback(result);
 };
   
-exports.getList = function (/*string*/ parameter, /*function*/ callback){
+// Methods related to VOTE MANIPULATION
+//
+//
+exports.listAllVotes = function (/*string*/ parameter, /*function*/ callback){
     // Getting a list of latest votes
-    
+    Vote.find((err, res) => {
+      if (err) {return console.log(err);}
+      console.log(res);
+      return res;
+    });
 };
+
+
+exports.listOpenVotes = function ( ) {
+//Listing votes that can still be voted on
+
+};
+
+exports.listClosedVotes = function ( ){
+// LIsting votes which cannot be altered
+
+}
+
+exports.listOwnVotes = function (/*String*/ username){
+// LIst user's self-created votes
+}
   
 exports.updateVote = function(/*string*/ name, /*integer*/ votedNumber, /*function*/ callback){
   console.log("updateVote: " + name + ", votedNumber: " + votedNumber); 
@@ -100,16 +121,37 @@ exports.updateVote = function(/*string*/ name, /*integer*/ votedNumber, /*functi
 };
   
 exports.createVote = function (/*String*/ question, /*string array*/ options, /*string*/ username, /*function*/callback){
-  var votes = [];
+
+  var ops = [];
+  options.forEach((option) => {
+    ops.push({q: option, v: 0});
+  });
+
   options.forEach(function(item){votes.push(0)});
-  
-  /*var vote = {
+  var vote = new Vote ({
     question: question,
-    choices: options,
-    votes: votes,
+    options: ops,
     creator: username,
-    voters: []
-             };*/
+    date: new Date(now),
+    open: true
+  });
+
+  Vote.save((err, vot) => {
+    if (err) {return console.log(err);}
+    console.log("Vote created.");
+    console.log(vot);
+    return callback(vot);
+
+  });
+  /*
+  var voteSchema = new Schema({
+  question: String,
+  options: Array,
+  creator: String,
+  date: {type: Date, default: Date.now},
+  open: {type: Boolean, default: true}
+});
+  */
   //var voted = [0,0];
   //database.create etc
 };
