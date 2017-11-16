@@ -1,3 +1,5 @@
+//import { request } from 'https';
+
 var db = require('./DatabaseInteractions.js');
 var mongoose = require("mongoose");
 var bodyParser = require('body-parser');
@@ -9,10 +11,12 @@ var session = require('client-sessions');
 
 
 function requireLogin(req, res, next) {
-  if (!req.session.user) {
+  if (!req.userCookie.user) {
     console.log("No user session detected");
     res.redirect("/login");
   } else {
+    console.log(req.userCookie.user);
+    console.log(req.userCookie.username);
     next();
   }
 }
@@ -20,41 +24,42 @@ module.exports = function(app) {
   
   //Basic file serving / initialization. 
   //TODO: send something else or add a thing when signed in.
-  app.get("/vote", function (request, response){
-    response.sendFile(__dirname + "/views/index.html");
+  app.get("/vote", function (req, res){
+    //TODO: Make this page the page you use to see a single vote's information
+    res.sendFile(__dirname + "/views/index.html");
     console.log("index.html served");
   });
 
   //Endpoint for getting information from the database.
   //TODO: add literally all database functions.
-  app.get("/info", function (request, response) {
+  app.get("/info", function (req, res) {
     console.log("Info requested.");
     /*db.validateUser("latest", function(r){
-        response.send(JSON.stringify(r));
+        res.send(JSON.stringify(r));
       });*/
   });
 
   //FOR VOTING
-  app.post("/vote", function(request, response) {
+  app.post("/vote", function(req, res) {
     
     //TODO: implement IP address checking to disallow voting by the same person twice
     console.log("Registering vote");
-    //console.log(request.body[0]);
+    //console.log(req.body[0]);
   
-    if(request.body.length > 0) {
-      db.updateVote(request.body[0].name, request.body[0].value - 1, function(updatedVoteInfo){
+    if(req.body.length > 0) {
+      db.updateVote(req.body[0].name, req.body[0].value - 1, function(updatedVoteInfo){
         console.log(updatedVoteInfo);
-        response.send(JSON.stringify(updatedVoteInfo));
+        res.send(JSON.stringify(updatedVoteInfo));
       });
     }
   });
 
   //FOR CREATING VOTES
-  app.put("/vote", requireLogin, function (request, response) {
+  app.put("/vote", requireLogin, function (req, res) {
     //TODO: Check for sign-in
-    //if (request.user is signed in)
+    //if (req.user is signed in)
     console.log("Creating question");
-    var bod = request.body;
+    var bod = req.body;
     db.createVote(bod.question, bod.options, bod.username, (ret) => {
       if (typeof(ret != {})) {
         
@@ -63,115 +68,187 @@ module.exports = function(app) {
     });
   });
 
+
+
+
+
+
+ //___________________________________________________________________________________________________________________________
+ //___________________________________________________________________________________________________________________________
+ //___________________________________________________________________________________________________________________________
  
-  //Serving the signup page (or form?)
-  app.get("/signup", function(request, response){
-    // if(userIsSignedIn){response.redirect(profile page)}
-    response.sendFile(__dirname + "/public/signup.html");
+
+
+
+
+
+ 
+ //Serving the signup page (or form?)
+
+ app.get("/signup", function(req, res){
+    // if(userIsSignedIn){res.redirect(profile page)}
+    res.sendFile(__dirname + "/public/signup.html");
   });
   
   //Endpoint for logging in
-  app.put("/signup", function(request, response){
+  app.put("/signup", function(req, res){
     console.log("signup request");
-    console.log(request.body);
-    console.log(request.cookies);
-    db.createUser(request.body.username, request.body.password, function(data){
+    console.log(req.body);
+    console.log(req.cookies);
+    db.createUser(req.body.username, req.body.password, function(data){
       // if data == null, there was no user. if anything else is returned, it's the user info.
       if (data == null) {
-        response.responseInfo = {created: "false", reason: "Username already in use!"};
-        //response.send({created: "false", reason: "Username already in use!"});
-        response.send();
+        res.responseInfo = {created: "false", reason: "Username already in use!"};
+        //res.send({created: "false", reason: "Username already in use!"});
+        res.send();
       } else {
         //cookies.
         console.log("signin cookie setup stage initiated.");
-        response.responseInfo = {created: "true"};
-        response.cookie("TestCookie1", 'TestValue1', {maxAge: 90000, httpOnly: true});
-        //response.redirect("/profile");
+        res.responseInfo = {created: "true"};
+        res.cookie("TestCookie1", 'TestValue1', {maxAge: 90000, httpOnly: true});
+        //res.redirect("/profile");
         
         //TODO: Implementoi automaattinen login, lähetä jokin salainen avain?
       }
       
     });
-    //response.cookie("TestCookie2", "TestValue2", {maxAge: 9000, httpOnly: true}).send("data received");
+    //res.cookie("TestCookie2", "TestValue2", {maxAge: 9000, httpOnly: true}).send("data received");
     
   });
 
-  app.get("/test", function(request, response){
+  app.get("/test", function(req, res){
     db.createUser("testi2", "salainen", function(data){
       // If createuser gives null, there exists a user by the name and registration cannot be done.
       if (!data) {
-        response.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
-        response.send("User already exists!");
+        res.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
+        res.send("User already exists!");
       } else {
         // TODO: create automatic sign-in at signup
-        response.cookie("TestCookie1", data[0], {maxAge: 90000, httpOnly: true}).send(data);
+        res.cookie("TestCookie1", data[0], {maxAge: 90000, httpOnly: true}).send(data);
       }
     });
   });
 
+  app.get("/votetest", (req, res) => {
+    db.createVote("Who is the president of China?", ["hu", "who", "Hue"], "get", (re) => {
+      if (!re) {
+        res.send("Unable to create vote!");
+      } else {
+        //implement
+        //res.redirect("/vote/<id or name of this vote>"); 
+        res.send(re);
+      }
+    });
+  });
+
+
+
+
+
+ //___________________________________________________________________________________________________________________________
+ //___________________________________________________________________________________________________________________________
+ //___________________________________________________________________________________________________________________________
+
+
+
+
+
   
   //Endpoint for logout
-  app.post("/logout", function(request, response){
-    response.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
-    request.session.reset();
-    response.redirect("/vote");
+  app.post("/logout", function(req, res){
+    res.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
+    req.session.reset();
+    res.redirect("/login");
     //Implement other measures to keep user away from
   });
   
   //Serving the login form
-  app.get("/login", function(request, response){
-    response.sendFile(__dirname + "/public/login.html");
+  app.get("/login", function(req, res){
+    res.sendFile(__dirname + "/public/login.html");
   });
-  app.get("/login.js", function(request, response){
-    response.sendFile(__dirname + "/public/login.js");
+
+  app.get("/login.js", function(req, res){
+    res.sendFile(__dirname + "/public/login.js");
   });
   
   //for creating a new user
-  app.post("/login", function(request, response){
-    console.log("Login attempt:" + request.body);
-    console.log(Object.keys(request.body));
-    db.validateUser(request.body.username, request.body.password, function(user){
+  app.post("/login", function(req, res){
+    console.log("Login attempt:" + req.body);
+    console.log(Object.keys(req.body));
+    db.validateUser(req.body.username, req.body.password, function(user){
       switch (user) {
         case null:
-          console.log("invalid username");
-          response.send("<h2>Invalid username!</h2>");
+          console.log("No such username!");
+          res.send("<h2>Invalid username!</h2>");
           break;
         case "invalid":
-          response.send("<h2>Invalid password!</h2>");
+          res.send("<h2>Invalid password!</h2>");
           break;
         case "auth":
           console.log("Authenticated");
-          request.session.user = user;
-          response.redirect('/profile');
+          req.userCookie.user = req.body.username;
+          res.redirect('/profile');
           break;
       };
     });
-    /*if (db.userFound(request.credentials)) {
+    /*if (db.userFound(req.credentials)) {
       res.cookie('cookieName', 'cookieValue', {maxAge: 90, httpOnly: true});
     }*/
   });
   
   //Profile: view the questions this profile has created, as well as the results of the vote
-  app.get("/profile", requireLogin, function(request, response){
+  app.get("/profile", requireLogin, function(req, res){
     //
-    response.send("you are currently observing the profile page.");
+    console.log(req.userCookie);
+    db.listOwnVotes(req.userCookie.user, (ret) => {
+      if (!ret) {
+        res.send("Something went wrong!");
+      } else {
+        console.log(ret);
+        res.send(ret);
+      }
+    });
+    //res.send("you are currently observing the profile page.");
   }); 
   
+
+
+
+
+
+
+
+ //___________________________________________________________________________________________________________________________
+ //___________________________________________________________________________________________________________________________
+ //___________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
   //These are halfway ready, stay away from them for now
-  app.get("/client.js", function(request, response){
-    response.sendFile(__dirname + "/public/client.js");
+  app.get("/client.js", function(req, res){
+    res.sendFile(__dirname + "/public/client.js");
   });
-  app.get("/client.css", function(request, response){
-    response.sendFile(__dirname + "/public/client.css");
+  app.get("/client.css", function(req, res){
+    res.sendFile(__dirname + "/public/client.css");
   });
-  app.get("/signup.js", function(request, response){
-    response.sendFile(__dirname + "/public/signup.js");
+  app.get("/signup.js", function(req, res){
+    res.sendFile(__dirname + "/public/signup.js");
   });
-  app.get("/*" , function(request, response){
+  app.get("/*" , function(req, res){
 
     //console.log("Logging potential cookies:");
-    //console.log(request.user + ", " + request.cookies);
-    response.sendFile(__dirname + "/views/index.html");
+    //console.log(req.user + ", " + req.cookies);
+    res.sendFile(__dirname + "/views/index.html");
     console.log("Default response served.");
 
     //testi

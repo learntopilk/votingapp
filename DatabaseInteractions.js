@@ -20,6 +20,16 @@ var userSchema = new Schema({
   
 });
 
+//Defining vote schema
+var voteSchema = new Schema({
+  question: {type: String, required: true},
+  options: {type: Array, required: true},
+  creator: {type: String, required: true},
+  date: {type: Date, default: Date.now},
+  open: {type: Boolean, default: true},
+  closes: {}
+});
+
 //mongoose.useMongoClient();
 mongoose.connect(url);
 
@@ -44,26 +54,17 @@ var users1 = [
   }
 ];*/
 
-//Defining vote schema
-var voteSchema = new Schema({
-  question: {type: String, required: true},
-  options: {type: Array, required: true},
-  creator: {type: String, required: true},
-  date: {type: Date, default: Date.now},
-  open: {type: Boolean, default: true},
-  closes: {}
-});
-
 var Vote = mongoose.model("vote", voteSchema);
 
 //Add an IP list to this so as to allow IP checking
+/*
 var sampleVote = {
   "question":"Question!!",
   "options":[{q: "this", v: 14}, {q: "that", v: 20}],
   "creator": "data",
   "created": new Date(Date.now()),
   "open": true,
-};  
+};  */
 
 exports.validateUser = function (/*string*/ name, /*string*/ password, /*function*/ callback) { 
   User.findOne({"username": name}, function(err, user){
@@ -108,15 +109,22 @@ exports.listClosedVotes = function ( ){
 
 }
 
-exports.listOwnVotes = function (/*String*/ username){
+exports.listOwnVotes = function (/*String*/ username, /*function*/callback){
 // LIst user's self-created votes
+  Vote.find({creator: username}, (err, ret) => {
+    if (err) {
+      console.log(err);
+      return callback(null);
+    }
+    return callback(ret);
+  });
 }
   
 exports.updateVote = function(/*string*/ name, /*integer*/ votedNumber, /*function*/ callback){
   console.log("updateVote: " + name + ", votedNumber: " + votedNumber); 
   //Increment the number that has the same index as the item voted for
-  sampleVote.votes[votedNumber]++;
-  return callback(sampleVote);
+  //sampleVote.votes[votedNumber]++;
+  return callback(null);
     
 };
   
@@ -127,19 +135,18 @@ exports.createVote = function (/*String*/ question, /*string array*/ options, /*
     ops.push({q: option, v: 0});
   });
 
-  options.forEach(function(item){votes.push(0)});
   var vote = new Vote ({
     question: question,
     options: ops,
     creator: username,
-    date: new Date(now),
+    date: new Date(Date.now()),
     open: true
   });
 
-  Vote.save((err, vot) => {
+  vote.save((err, vot) => {
     if (err) {return console.log(err);}
-    console.log("Vote created.");
-    console.log(vot);
+    //console.log("Vote created.");
+    //console.log(vot);
     return callback(vot);
 
   });

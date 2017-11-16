@@ -24,10 +24,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 var secret = process.env.APP_SECRET;
 
 app.use(session({
-    cookieName: 'session',
+    cookieName: 'userCookie',
     secret: secret,
     duration: 30*60*100,
-    activeDuration: 5*60*100
+    activeDuration: 5*60*100,
+    cookie: {httpOnly: true, /*secure: true*/}
 }));
 
 /*
