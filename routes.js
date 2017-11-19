@@ -15,8 +15,9 @@ function requireLogin(req, res, next) {
     console.log("No user session detected");
     res.redirect("/login");
   } else {
-    console.log(req.userCookie.user);
-    console.log(req.userCookie.username);
+    console.log("User detected: " + req.userCookie.user);
+    //console.log(req.userCookie.user);
+    //console.log(req.userCookie.username);
     next();
   }
 }
@@ -55,7 +56,7 @@ module.exports = function(app) {
   });
 
   //FOR CREATING VOTES
-  app.put("/vote", requireLogin, function (req, res) {
+  app.put("/vote", requireLogin, (req, res) => {
     //TODO: Check for sign-in
     //if (req.user is signed in)
     console.log("Creating question");
@@ -66,6 +67,22 @@ module.exports = function(app) {
       }
 
     });
+  });
+
+  app.get("/uservotes", requireLogin, (req, res) => {
+    console.log("user votes requested");
+    db.listOwnVotes(req.userCookie.user, (data) => {
+      if (!data) {
+        res.send({error: "Database error!"});
+      } else {
+        res.send(JSON.stringify(data));
+      }
+    });
+
+  });
+
+  app.get("/createVote", requireLogin, (req, res) => {
+    res.sendFile(__dirname + "/public/createVote.html")
   });
 
 
@@ -157,7 +174,15 @@ module.exports = function(app) {
   //Endpoint for logout
   app.post("/logout", function(req, res){
     res.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
+    delete req.userCookie.user;
     req.session.reset();
+    res.redirect("/login");
+    //Implement other measures to keep user away from
+  });
+  app.get("/logout", function(req, res){
+    res.cookie("signedIn", false, {expires: new Date(0), httpOnly: true});
+    delete req.userCookie.user;
+    //req.session.reset();
     res.redirect("/login");
     //Implement other measures to keep user away from
   });
@@ -205,11 +230,18 @@ module.exports = function(app) {
         res.send("Something went wrong!");
       } else {
         console.log(ret);
-        res.send(ret);
+        //res.send(ret);
+        res.sendFile(__dirname + "/public/profile.html");
       }
     });
     //res.send("you are currently observing the profile page.");
   }); 
+
+  app.get("/profile.js", requireLogin, (req, res) => {
+    res.sendFile(__dirname + "/public/profile.js");
+
+
+  });
   
 
 
@@ -235,11 +267,15 @@ module.exports = function(app) {
 
 
   //These are halfway ready, stay away from them for now
+  app.get("/createVote.js", function(req, res){
+    res.sendFile(__dirname + "/public/createVote.js");
+  });
   app.get("/client.js", function(req, res){
     res.sendFile(__dirname + "/public/client.js");
   });
-  app.get("/client.css", function(req, res){
-    res.sendFile(__dirname + "/public/client.css");
+  app.get("/style.css", function(req, res){
+    console.log("css sent.");
+    res.sendFile(__dirname + "/public/style.css");
   });
   app.get("/signup.js", function(req, res){
     res.sendFile(__dirname + "/public/signup.js");

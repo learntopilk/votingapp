@@ -110,7 +110,7 @@ exports.listClosedVotes = function ( ){
 }
 
 exports.listOwnVotes = function (/*String*/ username, /*function*/callback){
-// LIst user's self-created votes
+// List user's self-created votes
   Vote.find({creator: username}, (err, ret) => {
     if (err) {
       console.log(err);

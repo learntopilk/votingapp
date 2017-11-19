@@ -20,7 +20,7 @@ $(function(){
       {  
         if (req.readyState == 4 && req.status == 200) 
             {
-              document.getElementById("qu").innerHTML = '<h2>Success!</h2>'
+              document.getElementById("qu").innerHTML = '<h2>Success!</h2><a href="/profile"><p>Go to Profile</p></a>'
               var data = req.responseText;
               console.log (data);
               //document.cookie = "signedIn=true;secure=true;max-age=120;name ="+ req.responseText.username +";";

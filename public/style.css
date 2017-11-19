@@ -1,7 +1,55 @@
 /*style.css*/
+
+body {
+  width: 60%;
+  min-width: 600px;
+  margin: 0 auto;
+}
 p {
+
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+header {
+
+}
+main{
+background-color: rgba(240, 240, 240, 0.9); 
+}
+footer{
+
+}
+
+h1 {
+  font-family: sans-serif;
+}
+
+.singleVote {
+  background-color: rgba(33, 31, 29, 0.844);
+  color: rgba(240, 240, 240, 0.9);
+  padding: 10px;
+}
+
+.option {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.op {
+  /*float: left;*/
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.count {
+  /*float: right;*/
+  display: inline;
+  right: 15px;
+}
+
+#qu {
+  background-color: rgba(rgba(72, 34, 8, 0.193), green, blue, alpha);
+}
 input {
   vertical-align: middle; 
   margin: 0px;
