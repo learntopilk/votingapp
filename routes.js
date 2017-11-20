@@ -70,10 +70,10 @@ module.exports = function(app) {
     
     db.createVote(bod.question, ops, req.userCookie.user, (ret) => {
       console.log('db.createVote returned: ' + ret);
+      // TODO: send back some useful piece of information to the user
       if (typeof(ret != {})) {
-        
+        //... Here
       }
-
     });
   });
 
