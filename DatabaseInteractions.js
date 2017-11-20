@@ -130,8 +130,10 @@ exports.updateVote = function(/*string*/ name, /*integer*/ votedNumber, /*functi
   
 exports.createVote = function (/*String*/ question, /*string array*/ options, /*string*/ username, /*function*/callback){
 
+  console.log(options);
   var ops = [];
   options.forEach((option) => {
+    console.log("Adding option: " + option);
     ops.push({q: option, v: 0});
   });
 

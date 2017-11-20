@@ -57,11 +57,19 @@ module.exports = function(app) {
 
   //FOR CREATING VOTES
   app.put("/vote", requireLogin, (req, res) => {
-    //TODO: Check for sign-in
-    //if (req.user is signed in)
     console.log("Creating question");
-    var bod = req.body;
-    db.createVote(bod.question, bod.options, bod.username, (ret) => {
+    let bod = req.body;
+    //console.log(bod.options);
+    let ops = [];
+
+    for (let i = 0; i < bod.options.length; i++) {
+      console.log(bod.options[i].value);
+      ops.push(bod.options[i].value);
+    }
+
+    
+    db.createVote(bod.question, ops, req.userCookie.user, (ret) => {
+      console.log('db.createVote returned: ' + ret);
       if (typeof(ret != {})) {
         
       }
@@ -85,6 +93,9 @@ module.exports = function(app) {
     res.sendFile(__dirname + "/public/createVote.html")
   });
 
+  app.get("/createVote.js", requireLogin, (req, res) => {
+    res.sendFile(__dirname + "/public/createVote.js")
+  });
 
 
 
