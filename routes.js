@@ -40,7 +40,22 @@ module.exports = function(app) {
       });*/
   });
 
+  app.get("/voteList", (req, res) => {
+    console.log("voteList triggered");
+    db.listAllVotes(10, 1, (ret) => {
+      if (!ret) {
+        console.log("db.listAllVotes returned null")
+        res.send("Service unavailable");
+      } else {
+        console.log("sending votelist");
+        //res.setHeader("200", );
+        res.send(JSON.stringify(ret));
+      }
+    });
+  });
+
   //FOR VOTING
+  // TODO: make the database interaction actually save the updated vote count
   app.post("/vote", function(req, res) {
     
     //TODO: implement IP address checking to disallow voting by the same person twice
@@ -55,7 +70,7 @@ module.exports = function(app) {
     }
   });
 
-  //FOR CREATING VOTES
+  //FOR CREATING VOTES based on info given by logged-in user
   app.put("/vote", requireLogin, (req, res) => {
     console.log("Creating question");
     let bod = req.body;
@@ -67,7 +82,7 @@ module.exports = function(app) {
       ops.push(bod.options[i].value);
     }
 
-    
+    // Creating a vote based on information sent by the user form
     db.createVote(bod.question, ops, req.userCookie.user, (ret) => {
       console.log('db.createVote returned: ' + ret);
       // TODO: send back some useful piece of information to the user
@@ -77,6 +92,7 @@ module.exports = function(app) {
     });
   });
 
+  // This lists the votes of a logged-in user
   app.get("/uservotes", requireLogin, (req, res) => {
     console.log("user votes requested");
     db.listOwnVotes(req.userCookie.user, (data) => {
@@ -89,12 +105,30 @@ module.exports = function(app) {
 
   });
 
+  // This and the one below it only serve the files for the page
   app.get("/createVote", requireLogin, (req, res) => {
     res.sendFile(__dirname + "/public/createVote.html")
   });
 
   app.get("/createVote.js", requireLogin, (req, res) => {
     res.sendFile(__dirname + "/public/createVote.js")
+  });
+
+  app.get("/default.js", (req, res) => {
+    console.log("Default.js served");
+    res.sendFile(__dirname + "/views/default.js");
+  })
+
+  // Vote deletion. TODO: make this work
+  app.delete("/vote", requireLogin, (req, res) => {
+
+    db.deleteVote("", (ret) => {
+      if(ret) {
+        console.log(ret);
+        res.setHeader(200);
+        res.redirect("/profile");
+      }
+    });
   });
 
 
@@ -218,6 +252,7 @@ module.exports = function(app) {
           res.send("<h2>Invalid username!</h2>");
           break;
         case "invalid":
+        console.log("invalid password");
           res.send("<h2>Invalid password!</h2>");
           break;
         case "auth":

@@ -1,5 +1,6 @@
 $(function () {
 
+  console.log("Initiated");
   //Creating the handle for sendin an individual vote request
   var sendVote = function (event) {
 

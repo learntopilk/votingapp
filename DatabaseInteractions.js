@@ -1,18 +1,14 @@
 //File for interacting with the mongo database holding voting information
-//TODO: add functionality for finding and creating users
 //TODO: Add capability to attach questions to users
 var mongo = require("mongodb").MongoClient;
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
-//PUT THESE IN A .ENV FILE
 var user = process.env.MONGODB_USER;
 var pwd = process.env.MONGODB_PASSWORD;
-//console.log(user + " " + pwd);
-
-
 var url = "mongodb://"+user+":"+pwd+"@ds157964.mlab.com:57964/jonbase";
-//Defining user schema
+
+// Defining user schema
 var userSchema = new Schema({
   username: String,
   password: String,
@@ -27,44 +23,21 @@ var voteSchema = new Schema({
   creator: {type: String, required: true},
   date: {type: Date, default: Date.now},
   open: {type: Boolean, default: true},
-  closes: {}
+  closes: {/*type: Date, default: new Date(Date.now + 60480000)*/}
 });
 
-//mongoose.useMongoClient();
 mongoose.connect(url);
-
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function(){
   console.log("Connected to database!");
-
-  
 });
-var User = mongoose.model("user", userSchema, "users");
-/*
-var users1 = [
-  {
-    username: "data",
-    password: "secret",
-    dateOfCreation: new Date(70000)},
-  {
-    username: "second",
-    password: "other",
-    dateOfCreation: new Date(6999)
-  }
-];*/
 
+var User = mongoose.model("user", userSchema, "users");
 var Vote = mongoose.model("vote", voteSchema);
 
-//Add an IP list to this so as to allow IP checking
-/*
-var sampleVote = {
-  "question":"Question!!",
-  "options":[{q: "this", v: 14}, {q: "that", v: 20}],
-  "creator": "data",
-  "created": new Date(Date.now()),
-  "open": true,
-};  */
+//START ROUTE LIST
+
 
 exports.validateUser = function (/*string*/ name, /*string*/ password, /*function*/ callback) { 
   User.findOne({"username": name}, function(err, user){
@@ -89,13 +62,16 @@ exports.validateUser = function (/*string*/ name, /*string*/ password, /*functio
 // Methods related to VOTE MANIPULATION
 //
 //
-exports.listAllVotes = function (/*string*/ parameter, /*function*/ callback){
+exports.listAllVotes = function (/*string parameter*/ /*integer*/ howMany, /*Integer*/ PageNumber, /*function*/ callback){
     // Getting a list of latest votes
-    Vote.find((err, res) => {
+let q = Vote.find({}).sort({natural : -1}).limit(howMany);
+return callback(q);
+/*
+    Vote.find((err, ret) => {
       if (err) {return console.log(err);}
-      console.log(res);
-      return res;
-    });
+      //console.log(res);
+      return ret;
+    }).sort({natural: -1}).limit(howMany);*/
 };
 
 
@@ -120,6 +96,8 @@ exports.listOwnVotes = function (/*String*/ username, /*function*/callback){
   });
 }
   
+// For updating votes 
+// TODO: turn this into an actual database interaction
 exports.updateVote = function(/*string*/ name, /*integer*/ votedNumber, /*function*/ callback){
   console.log("updateVote: " + name + ", votedNumber: " + votedNumber); 
   //Increment the number that has the same index as the item voted for
@@ -167,6 +145,12 @@ exports.createVote = function (/*String*/ question, /*string array*/ options, /*
   
 exports.deleteVote = function (/*String*/ name, /*function*/ callback){
     //db.find({question: name}, function(err, data){return callback(data);});
+
+    console.log("db.deleteVote initiated for item: " + name);
+    if (callback) {
+      return callback(null);
+    }
+
     
 };
 
