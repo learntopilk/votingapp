@@ -62,10 +62,23 @@ exports.validateUser = function (/*string*/ name, /*string*/ password, /*functio
 // Methods related to VOTE MANIPULATION
 //
 //
+// exports.listAllVotes returns a list of 10 latest votes, based of date of creation (presumably, needs to be verified).
+// TODO: add capability to get 10 votes at a time so as to enable proper browsing of votes.
 exports.listAllVotes = function (/*string parameter*/ /*integer*/ howMany, /*Integer*/ PageNumber, /*function*/ callback){
     // Getting a list of latest votes
 let q = Vote.find({}).sort({natural : -1}).limit(howMany);
-return callback(q);
+q.exec((err, res) => {
+  if (err) {
+    console.log(err);
+  } 
+  if (res) {
+    return callback(res);
+  }
+  
+});
+//console.log(q);
+//callback(q);
+//return;
 /*
     Vote.find((err, ret) => {
       if (err) {return console.log(err);}

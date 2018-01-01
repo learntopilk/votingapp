@@ -49,7 +49,12 @@ module.exports = function(app) {
       } else {
         console.log("sending votelist");
         //res.setHeader("200", );
-        res.send(JSON.stringify(ret));
+        //res.send(JSON.stringify(ret));
+        res.send(ret);
+        /*res.send(JSON.stringify(ret, (key, val) => {
+          console.log(val);
+          return "l";
+        }));*/
       }
     });
   });
