@@ -64,7 +64,9 @@ module.exports = function(app) {
   app.post("/vote", function(req, res) {
     
     //TODO: implement IP address checking to disallow voting by the same person twice
+
     console.log("Registering vote");
+    console.log("Request IP: " + req.remoteAddress);
     //console.log(req.body[0]);
   
     if(req.body.length > 0) {
@@ -330,6 +332,11 @@ module.exports = function(app) {
   });
   app.get("/signup.js", function(req, res){
     res.sendFile(__dirname + "/public/signup.js");
+  });
+  app.get("/voteButton.js", (req, res) => {
+    console.log("Votebutton");
+    console.log(req.connection.remoteAddress);
+    res.sendFile(__dirname + "/public/voteButton.js");
   });
   app.get("/*" , function(req, res){
 

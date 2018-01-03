@@ -24,6 +24,12 @@ $(function(){
         voteReq.setRequestHeader("Content-type", "application/json");
         voteReq.send();
     }
+
+    let setVoteEventHandlers = function() {
+        //let votes = document.get
+
+
+    }
     
     let renderVotes = function(incomingData){
 
@@ -35,17 +41,29 @@ $(function(){
             if (el.question != "undefined") {
                 let vote = document.createElement('div');
                 vote.className = "singleVote";
-                vote.innerHTML = '<h4>' + el.question + '</h4>';
+                vote.innerHTML = '<h4 id=' + el._id + '>' + el.question + '</h4>';
+                let count = 0;
                 el.options.forEach((option) => {
                     let currentOption = document.createElement('div');
+                    let currentVoteButton = document.createElement('button');
+                    
                     currentOption.className = "option";
                     currentOption.innerHTML = '<p class="op">' + option.q + '</p><p class="count">' + option.v + '</p>';
+                    
+                    currentVoteButton.textContent = "Vote For This";
+                    currentVoteButton.alt = i.toString();
+                    //currentVoteButton
+                    
                     vote.appendChild(currentOption);
+                    vote.appendChild(currentVoteButton);
+                    count++;
                 });
                 //vote.appendChild('');
                 voteContainer.appendChild(vote);
             }
         });
+
+        setVoteEventHandlers();
 
 
       //voteContainer.innerHTML = '<form id="vote-container"><input type="text" id="user" placeholder="username" name="signupForm" required></input><input type="password" id="pwd" placeholder="password" name="signupForm" required></input><input type="submit">Signup</input></form>';
