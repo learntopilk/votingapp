@@ -1,6 +1,19 @@
 //import { forEach } from "../../../../AppData/Local/Microsoft/TypeScript/2.6/node_modules/@types/async";
 
 $(function(){
+
+    
+
+    function renderNavigation(){
+        let siteNav = document.createElement(div);
+        siteNav.className = "siteNav";
+        // Here: Check sign-in status with server,
+        // if signed in, server sends appopriate 
+        // navigation links
+
+
+        
+    }
     
     let updateVoteInformation = function(){
         console.log("updating...");
@@ -46,16 +59,19 @@ $(function(){
                 el.options.forEach((option) => {
                     let currentOption = document.createElement('div');
                     let currentVoteButton = document.createElement('button');
+
+                    currentVoteButton.textContent = "Vote For This";
+                    currentVoteButton.className = "votebtn";
+                    currentVoteButton.alt = i.toString();
                     
                     currentOption.className = "option";
                     currentOption.innerHTML = '<p class="op">' + option.q + '</p><p class="count">' + option.v + '</p>';
-                    
-                    currentVoteButton.textContent = "Vote For This";
-                    currentVoteButton.alt = i.toString();
+                    currentOption.appendChild(currentVoteButton);
+
                     //currentVoteButton
                     
                     vote.appendChild(currentOption);
-                    vote.appendChild(currentVoteButton);
+                    //vote.appendChild(currentVoteButton);
                     count++;
                 });
                 //vote.appendChild('');
