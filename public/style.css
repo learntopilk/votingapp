@@ -9,7 +9,7 @@ body {
   width: 60%;
   min-width: 600px;
   margin: 0 auto;
-  background-color: rgb(155,205,255)
+  background-color: rgb(13,35,150)
 }
 p {
 /*add raleway font because why not*/
@@ -19,12 +19,13 @@ p {
 header {
 
 }
-main{
-  background-color: rgba(240, 240, 240, 0.9); 
+main {
+  background-color: rgba(250, 246, 200, 0.91); 
   padding: 10px;
   border-radius: 5px 5px 0px 0px;
 }
-footer{
+
+footer {
  width: 60%;
  padding: 10px;
 }
@@ -35,23 +36,29 @@ h1 {
 
 .singleVote {
   /*background-color: rgba(33, 31, 29, 0.844);*/
-  background-color: rebeccapurple;
+  /*background-color: rebeccapurple;*/
   margin: 2px;
   color: rgba(240, 240, 240, 0.9);
+  color: rgba(20, 20, 20, 1);
   padding: 10px;
+  border-bottom: 2px solid gray;
 }
 
 .singleVote h4 {
-  background-color: gray;
+  
   font-size: 23px;
   font-family: 'Arimo', sans-serif;
-  padding: 15px;
+  padding: 7px;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
 
 }
 
 .option {
   display: block;
   margin-bottom: 5px;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 10px;
 }
 
 .op {
@@ -76,6 +83,17 @@ h1 {
   margin: 10px;
   float: right;
   margin-right: 30px;
+}
+
+.votedByClient{
+
+}
+
+button {
+  border-radius: 4px;
+  background-color: #0d2496;
+  color: white;
+  border: none;
 }
 
 #qu {

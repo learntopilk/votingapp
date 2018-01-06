@@ -39,7 +39,13 @@ $(function(){
     }
 
     let setVoteEventHandlers = function() {
-        //let votes = document.get
+        //let votes = document.getElem
+        let voteContainers = document.getElementsByClassName('singleVote');
+
+        voteContainers.forEach((vote) => {
+           // vote.
+            
+        });
 
 
     }
@@ -62,7 +68,8 @@ $(function(){
 
                     currentVoteButton.textContent = "Vote For This";
                     currentVoteButton.className = "votebtn";
-                    currentVoteButton.alt = i.toString();
+                    currentVoteButton.setAttribute("data-value", count);
+                   // alt = i.toString();
                     
                     currentOption.className = "option";
                     currentOption.innerHTML = '<p class="op">' + option.q + '</p><p class="count">' + option.v + '</p>';
