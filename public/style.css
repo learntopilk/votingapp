@@ -85,6 +85,16 @@ h1 {
   margin-right: 30px;
 }
 
+.votebtn.disabledbtn {
+  color: rgb(235, 233, 233);
+  background-color: rgb(70, 112, 250);
+}
+
+.votebtn.disabledbtn.voted_for {
+  color: rgb(199, 199, 199);
+  background-color: rgb(0, 60, 255);
+}
+
 .votedByClient{
 
 }

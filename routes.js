@@ -48,7 +48,7 @@ module.exports = function(app) {
         res.send("Service unavailable");
       } else {
         console.log("sending votelist");
-        //res.setHeader("200", );
+        //res.status(200, );
         //res.send(JSON.stringify(ret));
         res.send(ret);
         /*res.send(JSON.stringify(ret, (key, val) => {
@@ -66,15 +66,19 @@ module.exports = function(app) {
     //TODO: implement IP address checking to disallow voting by the same person twice
 
     console.log("Registering vote");
-    console.log("Request IP: " + req.remoteAddress);
-    //console.log(req.body[0]);
+    console.log("Request IP: " + req.connection.remoteAddress);
+    //
+    console.log(req.body);
+    res.status("200");
+    res.send("responding as a placeholder.");
   
+    /*
     if(req.body.length > 0) {
       db.updateVote(req.body[0].name, req.body[0].value - 1, function(updatedVoteInfo){
         console.log(updatedVoteInfo);
         res.send(JSON.stringify(updatedVoteInfo));
       });
-    }
+    }*/
   });
 
   //FOR CREATING VOTES based on info given by logged-in user
@@ -132,7 +136,7 @@ module.exports = function(app) {
     db.deleteVote("", (ret) => {
       if(ret) {
         console.log(ret);
-        res.setHeader(200);
+        res.status("200");
         res.redirect("/profile");
       }
     });
