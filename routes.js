@@ -67,10 +67,19 @@ module.exports = function(app) {
 
     console.log("Registering vote");
     console.log("Request IP: " + req.connection.remoteAddress);
-    //
+
     console.log(req.body);
     res.status("200");
-    res.send("responding as a placeholder.");
+    db.updateVote(req.body._id, req.body.option, ret => {
+      if (ret) {
+        res.send(JSON.parse({updated: true}));
+      } else {
+        res.send(JSON.parse({updated:false}));
+      }
+    });
+
+    //res.status("200");
+    //res.send("responding as a placeholder.");
   
     /*
     if(req.body.length > 0) {

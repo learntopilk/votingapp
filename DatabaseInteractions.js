@@ -17,11 +17,21 @@ var userSchema = new Schema({
 });
 
 //Defining vote schema
+/*var voteSchema = new Schema({
+  question: {type: String, required: true},
+  options: {type: Array, required: true},
+  creator: {type: String, required: true},
+  date: {type: Date, default: Date.now},
+  open: {type: Boolean, default: true},
+ // closes: {/*type: Date, default: new Date(Date.now + 60480000)*///  }
+//});
+
 var voteSchema = new Schema({
   question: {type: String, required: true},
   options: {type: Array, required: true},
   creator: {type: String, required: true},
   date: {type: Date, default: Date.now},
+  votedIPs:{type: Array, default: []},
   open: {type: Boolean, default: true},
   closes: {/*type: Date, default: new Date(Date.now + 60480000)*/}
 });
@@ -66,16 +76,16 @@ exports.validateUser = function (/*string*/ name, /*string*/ password, /*functio
 // TODO: add capability to get 10 votes at a time so as to enable proper browsing of votes.
 exports.listAllVotes = function (/*string parameter*/ /*integer*/ howMany, /*Integer*/ PageNumber, /*function*/ callback){
     // Getting a list of latest votes
-let q = Vote.find({}).sort({natural : -1}).limit(howMany);
-q.exec((err, res) => {
-  if (err) {
-    console.log(err);
-  } 
-  if (res) {
-    return callback(res);
-  }
-  
-});
+  let q = Vote.find({}).sort({ natural: -1 }).limit(howMany);
+  q.exec((err, res) => {
+    if (err) {
+      console.log(err);
+    }
+    if (res) {
+      return callback(res);
+    }
+
+  });
 //console.log(q);
 //callback(q);
 //return;
@@ -111,8 +121,24 @@ exports.listOwnVotes = function (/*String*/ username, /*function*/callback){
   
 // For updating votes 
 // TODO: turn this into an actual database interaction
-exports.updateVote = function(/*string*/ name, /*integer*/ votedNumber, /*function*/ callback){
-  console.log("updateVote: " + name + ", votedNumber: " + votedNumber); 
+exports.updateVote = function(/*string*/ id, /*integer*/ votedNumber, /*String */ IP, /*function*/ callback){
+  console.log("updateVote: " + id + ", votedNumber: " + votedNumber); 
+
+  Vote.findOne({"_id": id}, (err, data) => {
+    if (err) {
+      console.log(err);
+      return callback({updated: false, error: "Database error"});
+    }
+    if (data) {
+      if (!data.votedIPs) {
+        data.votedIPs = [IP];
+      } else {
+        data.votedIPs.append(IP);
+        // TODO: SAVE THE CHANGED PIECE OF STUFF
+      }
+    }
+
+  });
   //Increment the number that has the same index as the item voted for
   //sampleVote.votes[votedNumber]++;
   return callback(null);
