@@ -69,12 +69,12 @@ module.exports = function(app) {
     console.log("Request IP: " + req.connection.remoteAddress);
 
     console.log(req.body);
-    res.status("200");
-    db.updateVote(req.body._id, req.body.option, ret => {
+    //res.status("200");
+    db.updateVote(req.body._id, req.body.option, req.connection.remoteAddress, (ret) => {
       if (ret) {
-        res.send(JSON.parse({updated: true}));
+        res.end(JSON.stringify({updated: true}));
       } else {
-        res.send(JSON.parse({updated:false}));
+        res.end(JSON.stringify({updated: false}));
       }
     });
 

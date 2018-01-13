@@ -124,18 +124,39 @@ exports.listOwnVotes = function (/*String*/ username, /*function*/callback){
 exports.updateVote = function(/*string*/ id, /*integer*/ votedNumber, /*String */ IP, /*function*/ callback){
   console.log("updateVote: " + id + ", votedNumber: " + votedNumber); 
 
+  //Vote.findOneAndUpdate({"_id": id} (err));
+
   Vote.findOne({"_id": id}, (err, data) => {
     if (err) {
       console.log(err);
       return callback({updated: false, error: "Database error"});
     }
     if (data) {
+      console.log(data);
       if (!data.votedIPs) {
         data.votedIPs = [IP];
       } else {
-        data.votedIPs.append(IP);
+        data.votedIPs.push(IP);
         // TODO: SAVE THE CHANGED PIECE OF STUFF
       }
+      // UPDATING THE OPTION FOR WHICH THE USER HAS VOTED
+      data.options[votedNumber] = { q: data.options[votedNumber].q, v: data.options[votedNumber].v + 1};
+     // console.log(data.options[votedNumber]);
+      console.log(data);
+
+
+// WHAT IS GOING ON HERE?
+      Vote.collection.update({"_id": id}, data,{upsert: true}, (err, data) => {
+      //data.save((err, data) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("This is the vote registration confirmation branch.");
+          //console.log(data);
+          return callback(data);
+        }
+      });
+
     }
 
   });
